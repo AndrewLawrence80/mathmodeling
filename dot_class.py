@@ -32,18 +32,18 @@ class Dot(object):
         tmpx = self.x
         tmpy = self.y
         tmpz = self.z
-        tmpx += random.random()*distance-distance/2
+        tmpx = tmpx+random.random()*distance-distance/2
         while (tmpx < 0 or tmpx >= size):
             tmpx = self.x
-            tmpx += random.random()*distance-distance/2
-        tmpy += random.random()*distance-distance/2
+            tmpx =tmpx+ random.random()*distance-distance/2
+        tmpy =tmpy+ random.random()*distance-distance/2
         while (tmpy < 0 or tmpy >= size):
             tmpy = self.y
-            tmpy += random.random()*distance-distance/2
-        tmpz += random.random()*distance-distance/2
+            tmpy =tmpy+ random.random()*distance-distance/2
+        tmpz = tmpz+random.random()*distance-distance/2
         while (tmpz < 0 or tmpz >= size):
             tmpz = self.z
-            tmpz += random.random()*distance-distance/2
+            tmpz = tmpz+random.random()*distance-distance/2
         self.x = tmpx
         self.y = tmpy
         self.z = tmpz
@@ -61,22 +61,30 @@ class Dot(object):
         return self.z
 
     def showPosition(self):
-        print('('+str(self.x)+','+str(self.y)+','+str(self.z)+')')
-    
+        print('('+str(self.x)+','+str(self.y)+',' +
+              str(self.z)+')'+' '+str(self.status))
+
     def showSum(self):
-        print('broadsum='+str(self.broadcastTimeSum)+' waitsum='+str(self.waitTimeSum)+' validcnt='+str(self.validBroadcastCnt)+' invalidcnt='+str(self.invalidBroadcastCnt))
+        print('broadsum='+str(self.broadcastTimeSum)+' waitsum='+str(self.waitTimeSum) +
+              ' validcnt='+str(self.validBroadcastCnt)+' invalidcnt='+str(self.invalidBroadcastCnt))
 
     def getStatus(self):
         return self.status
 
-    def getWaitTimeSum(self):
-        return self.waitTimeSum
+    def getBroadcastTimeLeft(self):
+        return self.broadcastTimeLeft
 
     def getBroadcastTimeSum(self):
         return self.broadcastTimeSum
 
     def getWaitTimeSum(self):
         return self.waitTimeSum
+
+    def getValidBroadcastCnt(self):
+        return self.validBroadcastCnt
+
+    def getInvalidBroadcastCnt(self):
+        return self.invalidBroadcastCnt
 
     def checkReady(self):
         if (random.random() > self.defaultGetReadyThreshold):
@@ -86,29 +94,35 @@ class Dot(object):
         self.status = status_enum.Status.BROADCASTING
         self.broadcastTimeLeft = self.defaultBroadcastTime
 
+    def initializeAudienceSet(self, audienceSet):
+        self.audience = self.audience | audienceSet
+
+    def deleteFromAudienceSet(self, audienceTarget):
+        self.audience.remove(audienceTarget)
+
     def operateAudienceSet(self, audienceSet):
         self.audience = self.audience & audienceSet
 
     def broadcast(self):
         if (len(self.audience) == 0):
             self.broadcastFailed = True
-        self.broadcastTimeLeft -= 1
-        self.broadcastTimeSum += 1
+        self.broadcastTimeLeft = self.broadcastTimeLeft-1
+        self.broadcastTimeSum = self.broadcastTimeSum + 1
         if (self.broadcastTimeLeft == 0):
             if (self.broadcastFailed == False):
-                self.validBroadcastCnt += 1
+                self.validBroadcastCnt = self.validBroadcastCnt+1
             else:
-                self.invalidBroadcastCnt += 1
+                self.invalidBroadcastCnt = self.invalidBroadcastCnt+1
             self.audience.clear()
             self.broadcastFailed = False
             self.status = status_enum.Status.NORMAL
 
     def wait(self):
         self.status = status_enum.Status.WAITING
-        self.waitTimeSum += 1
+        self.waitTimeSum = self.waitTimeSum+1
 
     def silent(self):
-        self.invalidBroadcastCnt += 1
+        self.invalidBroadcastCnt = self.invalidBroadcastCnt+1
         self.broadcastTimeLeft = 0
         self.audience.clear()
         self.status = status_enum.Status.NORMAL

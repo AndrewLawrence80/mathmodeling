@@ -23,10 +23,10 @@ class UnionFind(object):
         if (parentA != parentB):
             if (self.size[parentA] < self.size[parentB]):
                 self.dots[parentA] = parentB
-                self.size[parentB] += self.size[parentA]
+                self.size[parentB] = self.size[parentB]+self.size[parentA]
             else:
                 self.dots[parentB] = parentA
-                self.size[parentA] += self.size[parentB]
+                self.size[parentA] = self.size[parentA]+self.size[parentB]
             self.cnt = self.cnt-1
 
     def createBranch(self):
@@ -51,11 +51,3 @@ class UnionFind(object):
 
     def getBranchSubs(self, key):
         return self.branches[key]
-
-
-uf = UnionFind([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-for i in range(0, 11):
-    m = input()
-    n = input()
-    uf.union(int(m), int(n))
-uf.createBranch()
